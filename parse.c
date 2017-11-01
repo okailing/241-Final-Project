@@ -26,7 +26,9 @@ int main(int argc, char *argv[]){
 	short numChannels;
 	fread(&numChannels, 2, 1, wavFile);
 	printf("NumChannels: %hd\n", numChannels);
-	READ(4);READ(4); //skipping SampleRate
+	READ(4);
+	printf("SampleRate: %d\n", *(int *) buffer);
+	READ(4);
 	printf("ByteRate: %d\n", *(int *) buffer);
 	READ(2);//skipping block allign
 	short bitsPerSample;
@@ -43,8 +45,7 @@ int main(int argc, char *argv[]){
 		printf("Sample %d:\n", i/(bytesPerSample*numChannels));
 		for(int j = 0; j < numChannels; j++){
 			fread(buffer, bytesPerSample, 1, wavFile);
-			int data = buffer[0] | (buffer[1]<<8);
-			printf("Channel %d: %d\t", j, data);
+			printf("Channel %d: %d\t", j, *buffer);//possibly unsafe for larger sample sizes
 		}
 		putchar('\n');
 		getchar();
