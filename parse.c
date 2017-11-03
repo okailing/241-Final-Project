@@ -1,3 +1,5 @@
+//Sam Barr
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -40,11 +42,10 @@ int main(int argc, char *argv[]){
 	int dataSize;
 	fread(&dataSize, 4, 1, wavFile);
 	
-	char data_buffer[bytesPerSample];
 	for(int i = 0; i < dataSize; i +=bytesPerSample*numChannels){
 		printf("Sample %d:\n", i/(bytesPerSample*numChannels));
 		for(int j = 0; j < numChannels; j++){
-			fread(buffer, bytesPerSample, 1, wavFile);
+			READ(bytesPerSample);
 			printf("Channel %d: %d\t", j, *buffer);//possibly unsafe for larger sample sizes
 		}
 		putchar('\n');
