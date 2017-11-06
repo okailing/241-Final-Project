@@ -74,6 +74,8 @@ WAVE *readWave(FILE * waveFile){
 	wave->bytesPerSample = bytesPerSample;
 
 	wave->data = data;
+
+	free(buffer)
 	return wave;
 }
 
@@ -95,4 +97,8 @@ int main(){
 		putchar('\n');
 		getchar();
 	}
+
+	free(file);
+	free(waveFile->data);
+	free(waveFile);
 }

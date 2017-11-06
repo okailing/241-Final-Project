@@ -1,0 +1,10 @@
+CSCI 241 Final Project
+
+Sam Barr
+Otto Kailing
+Colin McCahill
+Nathan Rice
+
+test.c: Used to read out PCM data in readable format
+
+waveparse.c: Contains method for reading PCM data into a struct
