@@ -5,20 +5,6 @@
 
 #define READ(A) fread(buffer,(A),1,wavFile)
 
-typedef struct wave {
-	int sampleRate;
-	int numChannels;
-	int dataSize;
-	short bytesPerSample;	
-
-	char ***data;
-
-	//len(data) == dataSize/(bytesPerSample*numChannels)
-	//len(*data) == numChannels
-	//len(**data) == bytesPerSample
-
-} WAVE;
-
 int main(int argc, char *argv[]){
 	if(argc < 2){
 		printf("No file name specified");
