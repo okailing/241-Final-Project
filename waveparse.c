@@ -28,7 +28,9 @@ typedef struct wave {
 } WAVE;
 
 WAVE *readWave(FILE * waveFile){
-	char *buffer = malloc(4);
+	char *buffer = malloc(5*sizeof(char));
+	*(buffer + 4) = '\0';
+
 	READ(4);//ChunkID
 	assert(strcmp(buffer, "RIFF")==0);
 
@@ -75,7 +77,7 @@ WAVE *readWave(FILE * waveFile){
 
 	wave->data = data;
 
-	free(buffer)
+	free(buffer);
 	return wave;
 }
 
@@ -94,11 +96,9 @@ int main(){
 			char *channelData = sample + j;
 			printf("Channel %d: %d\t", j, *channelData);
 		}
-		putchar('\n');
-		getchar();
 	}
 
-	free(file);
-	free(waveFile->data);
+	fclose(file);
+	free(data);
 	free(waveFile);
 }
