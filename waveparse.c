@@ -89,13 +89,14 @@ int main(){
 	short bytesPerSample = waveFile->bytesPerSample;
 	short numChannels = waveFile->numChannels;
 
-	for(int i = 0; i < dataSize; i +=bytesPerSample*numChannels){
+	for(int i = 0; i < dataSize; i += bytesPerSample*numChannels){
 		printf("Sample %d:\n", i/(bytesPerSample*numChannels));
 		char *sample = data + i;
-		for(int j = 0; j < numChannels; j++){
-			char *channelData = sample + j;
-			printf("Channel %d: %d\t", j, *channelData);
+		for(int j = 0; j < numChannels*bytesPerSample; j += bytesPerSample){
+			short *channelData = (short *)(sample + j);
+			printf("Channel %d: %hd\t", j, *channelData);
 		}
+		getchar();
 	}
 
 	fclose(file);
