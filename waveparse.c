@@ -81,7 +81,7 @@ WAVE *readWave(FILE * waveFile){
 	return wave;
 }
 
-int main(){
+int main_(){
 	FILE *file = fopen("piano2.wav", "rb");
 	WAVE *waveFile = readWave(file);
 	char *data = waveFile->data;
@@ -101,4 +101,6 @@ int main(){
 	fclose(file);
 	free(data);
 	free(waveFile);
+
+	return 1;
 }
