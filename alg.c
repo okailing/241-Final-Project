@@ -114,4 +114,18 @@ int main(int argc, char *argv[]){
 	}
 	
 	printf("%f\n", average(head));
+
+
+	fclose(f);
+	free(wave->data);
+	free(wave);
+
+	struct Node *curr = head->next;
+	while(curr->energy != -1){
+		struct Node *next = curr->next;
+		free(curr);
+		curr = next;
+	}
+	free(head);
+	free(tail);
 }
