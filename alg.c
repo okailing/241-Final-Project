@@ -50,6 +50,21 @@ struct Node *add(struct Node *list, struct Node *tmp){
     return list;
 }
 
+void add(struct Node *tail, struct Node *head, struct Node *newNode){
+	tail->prev->next = newNode;
+	newNode->prev = tail->prev;
+	
+	tail->prev = newNode;
+	newNode->next = tail;// put new node at tail
+
+	struct Node *toDelete = head->next;
+
+	head->next->next->prev = head;
+	head->next = head->next->next;
+
+	free(toDelete);//remove new from tail
+}
+
 struct Node *init(){
 	struct Node *tmphead=malloc(sizeof(struct Node));
 	struct Node *tmptail=malloc(sizeof(struct Node));
@@ -64,7 +79,6 @@ struct Node *init(){
 	tmphead->samplenumber = -1;
 	tmptail->samplenumber = -1;
 	return tmphead;
-
 }
 
 double average(struct Node *buffer){
@@ -78,7 +92,6 @@ double average(struct Node *buffer){
     nodes++;
     double avg = sum/nodes;
     return avg;
-
 }
 
 int main(int argc, char *argv[]){
