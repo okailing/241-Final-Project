@@ -2,8 +2,20 @@
 
 #include <inttypes.h>
 #include <stdlib.h>
+long position=0;
 
 //calculates the "instant energy" at a given sample location
+
+struct Node{
+    long energy;
+    long samplenumber;
+    struct Node *next;
+    struct Node *prev;
+    struct Node *head;
+    struct Node *tail;
+};
+
+
 long instantEnergy(WAVE *file, int sample){
 	long energy = 0;
 	short bytesPerSample = file->bytesPerSample;
@@ -30,10 +42,57 @@ long instantEnergy(WAVE *file, int sample){
 	return energy;
 }
 
+struct Node *add(struct Node *list, struct Node *tmp){
+    tmp->prev = list->tail->prev;
+    list->tail->prev->next=tmp; 
+    tmp->next = list->tail;
+    list->tail->prev = tmp;
+    return list;
+}
+
+struct Node *init(){
+	struct Node *tmphead=malloc(sizeof(struct Node));
+	struct Node *tmptail=malloc(sizeof(struct Node));
+	tmphead->head=tmphead;
+	tmphead->tail=tmptail;
+	tmphead->next=tmptail;
+	tmphead->prev=NULL;
+	tmptail->prev=tmphead;
+	tmptail->next=NULL;
+	tmphead->energy = -1;
+	tmptail->energy = -1;
+	tmphead->samplenumber = -1;
+	tmptail->samplenumber = -1;
+	return tmphead;
+
+}
+
+double average(struct Node *buffer){
+    int sum=0;
+    int nodes = 0;
+    while(buffer->next->energy != -1){
+	sum += buffer->next->energy;
+	buffer=buffer->next;
+	nodes++;
+    }sum += buffer->tail->prev->energy;	//adds the very last node's energy, not added from the while loop
+    nodes++;
+    double avg = sum/nodes;
+    return avg;
+
+}
+
 int main(int argc, char *argv[]){
 	FILE *f = fopen(argv[1], "rb");
 
 	WAVE *wave = readWave(f);
-
-	printf("%ld\n", instantEnergy(wave, 0));
+	struct Node *buffer = init();
+	for(int i=0;i<44032;i=i+1024){
+	    struct Node *tmp = malloc(sizeof(struct Node));
+	    tmp->samplenumber = i;
+	    tmp->energy=instantEnergy(wave,i);
+	    buffer = add(buffer,tmp);
+	}//average(buffer);
+	//printf("%f\n", average(buffer));
+	//printf("%ld\n", instantEnergy(wave, 0));
+	printf("%ld\n", buffer->head->next->next->energy);
 }
