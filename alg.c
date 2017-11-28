@@ -8,11 +8,9 @@ long position=0;
 
 struct Node{
     long energy;
-    long samplenumber;
+    long sampleNumber;
     struct Node *next;
     struct Node *prev;
-    struct Node *head;
-    struct Node *tail;
 };
 
 
@@ -42,13 +40,13 @@ long instantEnergy(WAVE *file, int sample){
 	return energy;
 }
 
-struct Node *add(struct Node *list, struct Node *tmp){
-    tmp->prev = list->tail->prev;
-    list->tail->prev->next=tmp; 
-    tmp->next = list->tail;
-    list->tail->prev = tmp;
-    return list;
-}
+//struct Node *add(struct Node *list, struct Node *tmp){
+//    tmp->prev = list->tail->prev;
+//    list->tail->prev->next=tmp; 
+//    tmp->next = list->tail;
+//    list->tail->prev = tmp;
+//    return list;
+//}
 
 void add(struct Node *tail, struct Node *head, struct Node *newNode){
 	tail->prev->next = newNode;
@@ -65,47 +63,55 @@ void add(struct Node *tail, struct Node *head, struct Node *newNode){
 	free(toDelete);//remove new from tail
 }
 
-struct Node *init(){
-	struct Node *tmphead=malloc(sizeof(struct Node));
-	struct Node *tmptail=malloc(sizeof(struct Node));
-	tmphead->head=tmphead;
-	tmphead->tail=tmptail;
-	tmphead->next=tmptail;
-	tmphead->prev=NULL;
-	tmptail->prev=tmphead;
-	tmptail->next=NULL;
-	tmphead->energy = -1;
-	tmptail->energy = -1;
-	tmphead->samplenumber = -1;
-	tmptail->samplenumber = -1;
-	return tmphead;
+void initAdd(struct Node *tail, struct Node *newNode){
+	tail->prev->next = newNode;
+	newNode->prev = tail->prev;
+	
+	tail->prev = newNode;
+	newNode->next = tail;// put new node at tail	
 }
 
-double average(struct Node *buffer){
-    int sum=0;
-    int nodes = 0;
-    while(buffer->next->energy != -1){
-	sum += buffer->next->energy;
-	buffer=buffer->next;
-	nodes++;
-    }sum += buffer->tail->prev->energy;	//adds the very last node's energy, not added from the while loop
-    nodes++;
-    double avg = sum/nodes;
-    return avg;
+struct Node *init(){
+	struct Node *new = malloc(sizeof(struct Node));
+	new->energy = -1;
+	new->sampleNumber = -1;
+	new->next = NULL;
+	new->prev = NULL;
+
+	return new;
+}
+
+double average(struct Node *head){
+	long total = 0;
+	int count = 0;
+	struct Node *curr = head->next;
+
+	while(curr->sampleNumber != -1){
+		total += curr->energy;
+		count += 1;
+
+		curr = curr->next;
+	}
+
+	return ((double) total) / count;
 }
 
 int main(int argc, char *argv[]){
 	FILE *f = fopen(argv[1], "rb");
 
 	WAVE *wave = readWave(f);
-	struct Node *buffer = init();
-	for(int i=0;i<44032;i=i+1024){
-	    struct Node *tmp = malloc(sizeof(struct Node));
-	    tmp->samplenumber = i;
+
+	struct Node *head = init();
+	struct Node *tail = init();
+	head->next = tail;
+	tail->prev = head;
+
+	for(int i=0;i<wave->sampleRate;i=i+1024){
+		struct Node *tmp = init();
+	    tmp->sampleNumber = i;
 	    tmp->energy=instantEnergy(wave,i);
-	    buffer = add(buffer,tmp);
-	}//average(buffer);
-	//printf("%f\n", average(buffer));
-	//printf("%ld\n", instantEnergy(wave, 0));
-	printf("%ld\n", buffer->head->next->next->energy);
+		initAdd(tail, tmp);    
+	}
+	
+	printf("%f\n", average(head));
 }
