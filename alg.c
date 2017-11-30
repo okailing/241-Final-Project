@@ -96,6 +96,44 @@ double average(struct Node *head){
 	return ((double) total) / count;
 }
 
+struct Node *findBeats(WAVE *wave){
+	struct Node *headBuffer = init(); // creates buffer ist
+	struct Node *tailBuffer = init();
+
+	head->next = tail;
+	tail->prev = head;
+
+	int numChannels = wave->numChannels;
+	int bytesPerSample = wave->bytesPerSample;
+
+	for(int i = 0; i < wave->sampleRate * numChannels * bytesPerSample; i += 1024 * numChannels * bytesPerSample){//initializing buffer
+		struct Node *temp = init();
+		temp->sampleNumber = i;
+		tmp->energy = instantEnergy(wave, i);
+		initAdd(tailBuffer, tmp);
+	}
+
+	struct Node *headBeats = init()// creates list of beats
+	struct Node *tailBeats = init();	
+
+	for(i = wave->sampleRate; i < wave->dataSize; i += 1024 * numChannels * bytesPerSample){//traverses songs and finds possible beats
+		struct Node newNode = init();
+		newNode->sampleNumber = i;
+		newNode->energy = instantEnergy(wave, i);
+
+		add(tailBuffer, headBuffer, newNode);
+
+		double averageEnergy = average(headBuffer);
+	
+		//use nathan and otto's multipler
+		if( 0  ){//node is a beat
+			initAdd(tailBeat, newNode);	//initAdd doesn't delete from list
+		}
+	}
+
+	return headBeats;
+}
+
 int main(int argc, char *argv[]){
 	FILE *f = fopen(argv[1], "rb");
 
@@ -114,7 +152,6 @@ int main(int argc, char *argv[]){
 	}
 	
 	printf("%f\n", average(head));
-
 
 	fclose(f);
 	free(wave->data);
