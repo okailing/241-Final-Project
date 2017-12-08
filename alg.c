@@ -2,6 +2,7 @@
 
 #include <inttypes.h>
 #include <stdlib.h>
+#include <math.h>
 long position=0;
 
 //calculates the "instant energy" at a given sample location
@@ -100,8 +101,8 @@ struct Node *findBeats(WAVE *wave){
 	struct Node *headBuffer = init(); // creates buffer ist
 	struct Node *tailBuffer = init();
 
-	head->next = tail;
-	tail->prev = head;
+	headBuffer->next = tailBuffer;
+	tailBuffer->prev = headBuffer;
 
 	int numChannels = wave->numChannels;
 	int bytesPerSample = wave->bytesPerSample;
@@ -109,15 +110,18 @@ struct Node *findBeats(WAVE *wave){
 	for(int i = 0; i < wave->sampleRate * numChannels * bytesPerSample; i += 1024 * numChannels * bytesPerSample){//initializing buffer
 		struct Node *temp = init();
 		temp->sampleNumber = i;
-		tmp->energy = instantEnergy(wave, i);
-		initAdd(tailBuffer, tmp);
+		temp->energy = instantEnergy(wave, i);
+		initAdd(tailBuffer, temp);
 	}
 
-	struct Node *headBeats = init()// creates list of beats
+	struct Node *headBeats = init();// creates list of beats
 	struct Node *tailBeats = init();	
 
-	for(i = wave->sampleRate; i < wave->dataSize; i += 1024 * numChannels * bytesPerSample){//traverses songs and finds possible beats
-		struct Node newNode = init();
+	headBeats->next = tailBeats;
+	tailBeats->prev = headBeats;
+
+	for(int i = wave->sampleRate; i < wave->dataSize; i += 1024 * numChannels * bytesPerSample){//traverses songs and finds possible beats
+		struct Node *newNode = init();
 		newNode->sampleNumber = i;
 		newNode->energy = instantEnergy(wave, i);
 
@@ -126,12 +130,33 @@ struct Node *findBeats(WAVE *wave){
 		double averageEnergy = average(headBuffer);
 	
 		//use nathan and otto's multipler
-		if( 0  ){//node is a beat
-			initAdd(tailBeat, newNode);	//initAdd doesn't delete from list
+		if(newNode->energy > 1.3*averageEnergy){//node is a beat
+			initAdd(tailBeats, newNode);	//initAdd doesn't delete from list
 		}
 	}
 
 	return headBeats;
+}
+
+
+double retc(struct node *head, double n){
+    double sum0;
+    struct Node *token = head;
+    token = token->next;
+    double avg = average(head);
+    while (token->energy!=-1){
+	sum0 += (pow((token->energy-avg),2));
+	double instant = token->energy;
+	//printf("%f, %f: ",instant, avg); 
+
+	//printf("%f\n",pow((instant-avg),2));
+	token = token->next;
+    }
+    double var = sum0/n;
+
+    double c = (-0.0025714*var)+1.5142857;
+    return c;
+
 }
 
 int main(int argc, char *argv[]){
@@ -144,14 +169,28 @@ int main(int argc, char *argv[]){
 	head->next = tail;
 	tail->prev = head;
 
-	for(int i=0;i<wave->sampleRate;i=i+1024){
+	int i;
+	for(i=0;i<wave->sampleRate-1024;i=i+1024){//I subtract 1024 from sampleRate to account for the fact that 1024 doesn't envenly divide the sampleRate
 		struct Node *tmp = init();
 	    tmp->sampleNumber = i;
 	    tmp->energy=instantEnergy(wave,i);
 		initAdd(tail, tmp);    
 	}
-	
-	printf("%f\n", average(head));
+
+
+	double otto = wave->sampleRate/1024;
+	int wow = (int) otto;
+
+		
+	//printf("%d\n", wow);
+
+
+	struct Node *test = findBeats(wave);
+	test = test->next;
+	while (test->sampleNumber!=-1){
+	    printf("%ld\n", test->sampleNumber);
+	    test=test->next;
+	}
 
 	fclose(f);
 	free(wave->data);
