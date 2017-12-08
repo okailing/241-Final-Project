@@ -61,7 +61,8 @@ void add(struct Node *tail, struct Node *head, struct Node *newNode){
 	head->next->next->prev = head;
 	head->next = head->next->next;
 
-	free(toDelete);//remove new from tail
+	//free(toDelete);//remove new from tail
+	//freeing up everything is gonna be a mess
 }
 
 void initAdd(struct Node *tail, struct Node *newNode){
@@ -97,6 +98,24 @@ double average(struct Node *head){
 	return ((double) total) / count;
 }
 
+double retc(struct Node *head){
+    double sum0 = 0;
+	int n = 0;
+    struct Node *token = head;
+    token = token->next;
+    double avg = average(head);
+    while (token->energy!=-1){
+		sum0 += (token->energy - avg) * (token->energy - avg);
+		token = token->next;
+		n += 1;
+    }
+    double var = sum0/n;
+
+    double c = (-0.0025714*var)+1.5142857;
+    return c;
+
+}
+
 struct Node *findBeats(WAVE *wave){
 	struct Node *headBuffer = init(); // creates buffer ist
 	struct Node *tailBuffer = init();
@@ -128,38 +147,22 @@ struct Node *findBeats(WAVE *wave){
 		add(tailBuffer, headBuffer, newNode);
 
 		double averageEnergy = average(headBuffer);
-	
+		double multiplier = retc(headBuffer);
+
 		//use nathan and otto's multipler
-		if(newNode->energy > 1.3*averageEnergy){//node is a beat
-			initAdd(tailBeats, newNode);	//initAdd doesn't delete from list
+		if(newNode->energy > multiplier*averageEnergy){//node is a beat
+			initAdd(tailBeats, newNode);	//initAdd doesn't delete from list	
 		}
 	}
 
 	return headBeats;
 }
 
-
-double retc(struct node *head, double n){
-    double sum0;
-    struct Node *token = head;
-    token = token->next;
-    double avg = average(head);
-    while (token->energy!=-1){
-	sum0 += (pow((token->energy-avg),2));
-	double instant = token->energy;
-	//printf("%f, %f: ",instant, avg); 
-
-	//printf("%f\n",pow((instant-avg),2));
-	token = token->next;
-    }
-    double var = sum0/n;
-
-    double c = (-0.0025714*var)+1.5142857;
-    return c;
-
-}
-
 int main(int argc, char *argv[]){
+	if(argc != 2){
+		printf("%dYou need to put in an argument", argc);
+		exit(1);
+	}
 	FILE *f = fopen(argv[1], "rb");
 
 	WAVE *wave = readWave(f);
@@ -177,17 +180,10 @@ int main(int argc, char *argv[]){
 		initAdd(tail, tmp);    
 	}
 
-
-	double otto = wave->sampleRate/1024;
-	int wow = (int) otto;
-
-		
-	//printf("%d\n", wow);
-
-
 	struct Node *test = findBeats(wave);
 	test = test->next;
 	while (test->sampleNumber!=-1){
+		break;
 	    printf("%ld\n", test->sampleNumber);
 	    test=test->next;
 	}
