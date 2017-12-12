@@ -24,16 +24,16 @@ long instantEnergy(WAVE *file, int sample){
 
 	for(int i = sample; i < MIN(file->dataSize, sample + 1024*bytesPerSample*numChannels); i+=bytesPerSample){
 		if(bytesPerSample == 1){
-			int8_t val = (int8_t) *(data+i);
+			int8_t val = *((int8_t *) (data+i));
 			val = val * val;
 			energy += val;
 		}	
-		if(bytesPerSample == 2){
-			int16_t val = (int16_t) *(data+i);
+		else if(bytesPerSample == 2){
+			int16_t val = *((int16_t *) (data+i));
 			val = val * val;
 			energy += val;
 		}
-		if(bytesPerSample == 3){ // I think this should work
+		else if(bytesPerSample == 3){ // I think this should work
 			int val = 0;
 			char  val_0 = *(data+i);
 			char  val_1 = *(data + i + 1);
