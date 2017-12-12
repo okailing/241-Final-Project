@@ -112,7 +112,7 @@ double average(struct Node *head){
 		curr = curr->next;
 	}
 
-	return ((double) total) / count;
+	return (total) / count;
 }
 
 //calculates the sensitivity mutliplier based on the history buffer
@@ -122,9 +122,11 @@ double retc(struct Node *head){
     struct Node *token = head;
     token = token->next;
     double avg = average(head);
-    while (token->energy!=-1){
+    while (token->sampleNumber!=-1){
 		sum0 += (token->energy - avg) * (token->energy - avg);
 		n += 1;
+
+		token = token->next;
     }
     double var = sum0/n;
 
